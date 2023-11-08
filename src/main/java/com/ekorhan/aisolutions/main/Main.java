@@ -38,7 +38,5 @@ public class Main {
         method1 = new Method1(dataProcessor.getData(), k);
         method2 = new Method2(dataProcessor.getData(), k);
         method3 = new Method3(dataProcessor.getData(), k);
-
-        ApiFootballProvider.saveBulkPlayer(1);
     }
 }

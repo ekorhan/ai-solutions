@@ -5,9 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.net.URI;
@@ -15,39 +14,28 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 
 @Slf4j
-@EnableAsync
+@Component
 public class ApiFootballProvider {
-    @Scheduled(fixedDelay = 1000)
-    public void scheduleFixedDelayTask() {
-        System.out.println(
-                "Fixed delay task - " + System.currentTimeMillis() / 1000);
+    public ApiFootballProvider() throws IOException, InterruptedException {
+        scheduleFetchPlayerDate();
     }
-    @Async
-    @Scheduled(fixedRate = 1000)
-    public void scheduleFixedRateTaskAsync() throws InterruptedException {
-        System.out.println(
-                "Fixed rate task async - " + System.currentTimeMillis() / 1000);
-        Thread.sleep(2000);
-    }
-    @Scheduled(fixedDelay = 1000, initialDelay = 1000)
-    public void scheduleFixedRateWithInitialDelayTask() {
 
-        long now = System.currentTimeMillis() / 1000;
-        System.out.println(
-                "Fixed rate task with one second initial delay - " + now);
+    @Scheduled(fixedRateString = "${my.property.fixed.delay.seconds:86400}000")
+    public void scheduleFetchPlayerDate() throws IOException, InterruptedException {
+        saveBulkPlayer(2);
+        Calendar c = Calendar.getInstance();
+        log.info(" Players have been set at {}:{}:{}",
+                c.get(Calendar.HOUR),
+                c.get(Calendar.MINUTE),
+                c.get(Calendar.SECOND));
     }
-    @Scheduled(cron = "*/5 * * * * *")
-    public void scheduleTaskUsingCronExpression() {
 
-        long now = System.currentTimeMillis() / 1000;
-        System.out.println(
-                "schedule tasks using cron jobs - " + now);
-    }
-    public static ApiFootballPlayersResponse getPlayers(int page) throws IOException, InterruptedException {
+    public ApiFootballPlayersResponse getPlayers(int page) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("https://api-football-v1.p.rapidapi.com/v3/players?league=39&season=2020&page=" + page))
                 .header("X-RapidAPI-Key", "bf7877b402mshc77f9e8afb8c776p1fc269jsn08f693a75c91")
@@ -60,13 +48,13 @@ public class ApiFootballProvider {
         return gson.fromJson(response.body(), ApiFootballPlayersResponse.class);
     }
 
-    public static void saveBulkPlayer(int count) throws IOException, InterruptedException {
+    public void saveBulkPlayer(int count) throws IOException, InterruptedException {
         for (int i = 1; i <= count; i++) {
             savePlayers();
         }
     }
 
-    public static void savePlayers() throws IOException, InterruptedException {
+    public void savePlayers() throws IOException, InterruptedException {
         File currDir = new File(".");
         String path = currDir.getAbsolutePath();
         String fileLocation = path.substring(0, path.length() - 1) + "players.xlsx";
@@ -293,28 +281,28 @@ public class ApiFootballProvider {
         return ++cellIndex;
     }
 
-    private static int prepareCell(Row row, CellStyle style, int cellIndex, Double val) {
+    private int prepareCell(Row row, CellStyle style, int cellIndex, Double val) {
         Cell cell = row.createCell(cellIndex);
         cell.setCellValue(val);
         cell.setCellStyle(style);
         return ++cellIndex;
     }
 
-    private static int prepareCell(Row row, CellStyle style, int cellIndex, String val) {
+    private int prepareCell(Row row, CellStyle style, int cellIndex, String val) {
         Cell cell = row.createCell(cellIndex);
         cell.setCellValue(val);
         cell.setCellStyle(style);
         return ++cellIndex;
     }
 
-    private static int prepareCell(Row row, CellStyle style, int cellIndex, Boolean val) {
+    private int prepareCell(Row row, CellStyle style, int cellIndex, Boolean val) {
         Cell cell = row.createCell(cellIndex);
         cell.setCellValue(val);
         cell.setCellStyle(style);
         return ++cellIndex;
     }
 
-    private static int prepareHeaderCell(Row header, CellStyle headerStyle, int index, String val) {
+    private int prepareHeaderCell(Row header, CellStyle headerStyle, int index, String val) {
         Cell headerCell = header.createCell(index);
         headerCell.setCellValue(val);
         headerCell.setCellStyle(headerStyle);

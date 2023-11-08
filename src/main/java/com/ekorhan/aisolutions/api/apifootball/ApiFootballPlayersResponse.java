@@ -47,7 +47,7 @@ public class ApiFootballPlayersResponse {
         public int lineups;
         public int minutes;
         public String position;
-        public Double rating;
+        public String rating;
         public boolean captain;
     }
 
