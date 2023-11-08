@@ -2,6 +2,7 @@ package com.ekorhan.aisolutions.kmeans.model;
 
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -10,6 +11,12 @@ public class Input {
     private long id;
     private String name;
     private List<Double> values;
+
+    public Input(long id, String name) {
+        this.id = id;
+        this.name = name;
+        values = new ArrayList<>();
+    }
 
     public Input(List<Double> values) {
         id = new Random().nextInt(1000);
@@ -20,5 +27,9 @@ public class Input {
         this.id = id;
         this.name = name;
         this.values = values;
+    }
+
+    public void addValue(Double val) {
+        values.add(val);
     }
 }
